@@ -112,7 +112,7 @@ class Net(object):
         # # 全连接层
         with tf.variable_scope('fc1'):
             # 全连接层
-            fc1 = tf.layers.dense(flatten1, 100, activation=tf.nn.relu)
+            fc1 = tf.layers.dense(flatten1, 1000, activation=tf.nn.relu)
             fc1 = tf.nn.dropout(fc1, keep_prob=self.keepdrop)
         # 输出层
         with tf.variable_scope('out'):
