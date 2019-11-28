@@ -10,10 +10,24 @@ import matplotlib.pyplot as plt
 import matplotlib as mpl
 import numpy as np
 import time
+import tensorflow as tf
+import Config
 
 # 解决中文显示问题
 mpl.rcParams['font.sans-serif'] = [u'SimHei']
 mpl.rcParams['axes.unicode_minus'] = False
+
+
+def one_hot_encode_sigle(label, numbers):
+    """
+    对单个的标签进行one-hot编码
+    :param label:
+    :param numbers:
+    :return:
+    """
+    one_hot_encode_ = np.zeros(numbers)
+    one_hot_encode_[label] = 1
+    return one_hot_encode_
 
 # 对label数据进行onehot编码
 def one_hot_encode(labels, numbers):
@@ -27,10 +41,11 @@ def one_hot_encode(labels, numbers):
     # 定义一个初始的雅编码的列表，我们已知分类共17个。所以可以定义呀编码列表如下
     one_hot_encode_list = []
     for label in labels:
-        one_hot_encode_ = np.zeros(numbers)
-        one_hot_encode_[label] = 1
-        one_hot_encode_list.append(one_hot_encode_)
+        one_hot_encode_list.append(one_hot_encode_sigle(label, numbers))
     return np.asarray(one_hot_encode_list)
+
+
+
 
 def batch_features_labels(features, labels, batch_size):
     """
@@ -88,3 +103,39 @@ def normalize(x):
     """
     result = (x-np.min(x))/(np.max(x)-np.min(x))
     return result
+
+
+def read_tfrecord(filename, batch_size, n_classes):
+    """
+    读取TFRecord文件
+    :param filename: 文件名称
+    :param batch_size: 批次大小
+    :return:
+    """
+    # 获取队列
+    filename_queue = tf.train.string_input_producer([filename])
+    # 构建数据读取器
+    reader = tf.TFRecordReader()
+    # 读取队列中的数据
+    _, serialized_example = reader.read(filename_queue)
+
+    # 处理样本
+    features = tf.parse_single_example(
+        serialized_example,
+        features={
+            'image': tf.FixedLenFeature([], tf.string),
+            'label': tf.FixedLenFeature([], tf.string)
+        }
+    )
+
+    # 读取特征
+    image = tf.decode_raw(features['image'], tf.float32)
+    label = tf.decode_raw(features['label'], tf.float32)
+
+    # 格式重定
+    image = tf.reshape(image, [Config.width, Config.height, 3])
+    label = tf.reshape(label, [n_classes])
+
+    # 转换为批次的Tensor对象
+    image, label = tf.train.batch([image, label], batch_size=batch_size, capacity=500)
+    return image, label

@@ -272,6 +272,8 @@ class Net(object):
                 # 写入日志
                 content = '当前的epoch: {}, 训练集损失: {}, 训练集准确率: {}, 验证集损失: {}, 验证集准确率: {}'.format(epoch, np.mean(train_loss_sum), np.mean(train_acc_sum), np.mean(valid_loss_sum), np.mean(valid_acc_sum))
                 Helper.wirteTrainLog('多标签分类模型训练日志', content)
+                if np.mean(valid_acc_sum) >= 0.88:
+                    break
 
     def predict(self, X):
         """

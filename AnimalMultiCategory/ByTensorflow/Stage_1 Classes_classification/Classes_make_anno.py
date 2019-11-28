@@ -27,6 +27,7 @@ def convert_fearture_label(data_path, feature_save_name, label_save_name):
     if not os.path.exists(path):
         raise FileNotFoundError('未找到对应的文件！！！！，请先运行Dataset目录下的Image_rename.py和Image_covert_data.py')
     dlist = np.load(path)
+
     # 对数据进行打乱操作
     ids = np.asarray(range(len(dlist)))
     np.random.shuffle(ids)
@@ -45,15 +46,27 @@ def convert_fearture_label(data_path, feature_save_name, label_save_name):
             image_vector = cv.resize(image_vector, (Config.width, Config.height))
             # 转换为RGB
             image_vector = cv.cvtColor(image_vector, cv.COLOR_BGR2RGB)
+            # 进行数据增广操作
+            # 1. 水平镜像
+            image_vector_h_filp = cv.flip(image_vector, 1)
+            # 2. 垂直镜像
+            # image_vector_v_filp = cv.flip(image_vector, 0)
             # 图像标准化
             image_vector = Helper.normalize(image_vector)
+            image_vector_h_filp = Helper.normalize(image_vector_h_filp)
+            # image_vector_v_filp = Helper.normalize(image_vector_v_filp)
+
             features.append(image_vector)
+            features.append(image_vector_h_filp)
+            # features.append(image_vector_v_filp)
             labels.append(label)
+            labels.append(label)
+            # labels.append(label)
         except Exception as e:
             print('{}读取出现错误：{}，未加入到训练集中！！！'.format(image_path, e))
 
-    np.save(feature_save_name, np.asarray(features))
-    np.save(label_save_name, np.asarray(labels))
+    np.save(feature_save_name, features)
+    np.save(label_save_name, labels)
 
 # 本地二进制文件存储的路径
 DATA_DIR = '../../Datas'

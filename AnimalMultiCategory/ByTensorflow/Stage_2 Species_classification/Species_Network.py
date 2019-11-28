@@ -213,6 +213,7 @@ class Net(object):
                 train_acc_sum = []
                 train_loss_sum = []
                 for features, labels in Helper.batch_features_labels(X_train, y_train, self.batch_size):
+
                     feed_dict = {
                         self.x: features,
                         self.y: labels,
