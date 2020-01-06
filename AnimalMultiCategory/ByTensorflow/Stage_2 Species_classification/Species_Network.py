@@ -70,7 +70,7 @@ class Net(object):
             conv2 = self._resnet_bottleneck_block(conv2, std_filters=64, resize=False)
             conv2 = tf.nn.dropout(conv2, keep_prob=self.keepdrop)
 
-        # [None, 28, 28, 64]  -----》 [None, 28, 28, 512]
+        # [None, 56, 56, 256]  -----》 [None, 28, 28, 512]
         with tf.variable_scope('conv3'):
             # 高宽减半了。
             conv3 = self._resnet_bottleneck_block(conv2, std_filters=128, resize=True, block_stride=2)
@@ -80,7 +80,7 @@ class Net(object):
             conv3 = self._resnet_bottleneck_block(conv3, std_filters=128, resize=False)
             conv3 = tf.nn.dropout(conv3, keep_prob=self.keepdrop)
 
-        # [None, 28, 28, 64]  -----》 [None, 14, 14, 1024]
+        # [None, 28, 28, 512]  -----》 [None, 14, 14, 1024]
         with tf.variable_scope('conv4'):
             # 高宽减半了。
             conv4 = self._resnet_bottleneck_block(conv3, std_filters=256, resize=True, block_stride=2)
@@ -94,11 +94,12 @@ class Net(object):
             conv4 = tf.nn.dropout(conv4, keep_prob=self.keepdrop)
 
         # [None, 14, 14, 1024]  -----》 [None, 7, 7, 2048]
+        # [None, 14, 14, 1024]  -----》 [None, 7, 7, 1024]  这里是因为电脑要求，最后一层卷积操我没有用2048的深度
         with tf.variable_scope('conv5'):
             # 高宽减半了。
-            conv5 = self._resnet_bottleneck_block(conv4, std_filters=256, resize=True, block_stride=2)
-            conv5 = self._resnet_bottleneck_block(conv5, std_filters=256, resize=False)
-            conv5 = self._resnet_bottleneck_block(conv5, std_filters=256, resize=False)
+            conv5 = self._resnet_bottleneck_block(conv4, std_filters=512, resize=True, block_stride=2)
+            conv5 = self._resnet_bottleneck_block(conv5, std_filters=512, resize=False)
+            conv5 = self._resnet_bottleneck_block(conv5, std_filters=512, resize=False)
             conv5 = tf.nn.dropout(conv5, keep_prob=self.keepdrop)
 
         # 执行全局平均池化

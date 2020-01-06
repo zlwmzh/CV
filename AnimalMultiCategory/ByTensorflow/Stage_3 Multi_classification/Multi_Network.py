@@ -101,6 +101,7 @@ class Net(object):
             conv4 = tf.nn.dropout(conv4, keep_prob=self.keepdrop)
 
         # [None, 14, 14, 1024]  -----》 [None, 7, 7, 2048]
+        # [None, 14, 14, 1024]  -----》 [None, 7, 7, 1024]  这里是因为电脑要求，最后一层卷积操我没有用2048的深度
         with tf.variable_scope('conv5'):
             # 高宽减半了。
             conv5 = self._resnet_bottleneck_block(conv4, std_filters=256, resize=True, block_stride=2)
